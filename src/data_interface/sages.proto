@@ -1,0 +1,105 @@
+syntax = "proto3";
+package sages;
+
+// This message defines a general surgical object. Can be used for:
+// - attaching properties and tags to annotations,
+// - note general phenomena in the surgery,
+// - relate objects in a model definition.
+// TODO: see if we need both name and value
+message SurgicalObject{
+  string object_name = 1;
+  string object_value = 2;
+  string object_uid = 3;
+}
+
+// This message defines an external entity -- e.g., a CT annotation, external image, etc.
+message ExternalEntity{
+  string entity_name = 1;
+  string entity_uid = 2;
+}
+
+// This message defines a time span, either point event, or interval.
+message TimeSpan{
+  double start = 1;
+  double end = 2; // optional - if point process.
+  bool start_exact = 3; // if true - the interval start is exact.  Otherwise, interval starts at least on, if not before, "start".
+  bool end_exact = 4; // if true - the interval end is exact. Otherwise, interval continues until end, but possibly afterwards.
+}
+
+// This message defines a 2D coordinate.
+message Coordinate2D{
+  float x = 1;
+  float y = 2;
+}
+
+// This message defines a 2D region via its enclosing polygon.
+message SpatialSpan {
+    repeated Coordinate2D elements = 1;
+}
+
+// This message defines a spatial or temporal event in the annotation (e.g. a time interval, spatial region at some frame, etc).
+message Event {
+// If both temporal and spatial annotations are defined, this defines a cube in space-time.
+  string name = 1; // The name, if any, of this interval. Free-form for now.
+  string type = 2; // Defined as a string, should be an object UID of a surgical object from a model definition's entities.
+                   //-- do we need an additional ID to connect to an ontology? Or is a string enough?
+  TimeSpan temporal_span = 3; // Optional. Set to a point for spatial annotation.
+  SpatialSpan spatial_span = 4; // Optional. Leave empty for temporal annotation.
+  string video_id = 5;
+}
+
+
+// Either an event, object, or an external entity (exactly one of them).
+// Refered to by a relation
+message SurgeryEntity{
+    Event event = 1;
+    SurgicalObject object = 2;
+    ExternalEntity external_entity = 3;
+    string entity_id = 4;
+}
+
+// This message defines a semantic track of annotations (such as a primary phases, deviation, auxiliary events)
+message Track {
+  string name = 1;
+  repeated SurgeryEntity entities = 2;
+}
+
+// This message defines a collection of tracks.
+message Tracks {
+  repeated Track tracks = 1;
+}
+
+// This message defines a temporal relation, as a tuple with a semantic type.
+// Multiple elements define an ordered tuple of entities ids that define the relation. Supports n-ary relations
+// Elements are ordered, so relation type implies directionality for binary relationship
+// First binary relation example implies poor exposure causes gallbladder injury
+// 	('cause',['Poor exposure','gallbladder injury'],<'certainty':'0.5','comment':'I think due to haste'>)
+// Second binary relation example implies gallbladder injury causes poor exposure (via bile spillage)
+// 	('cause',['Gallbladder injury','Poor exposure'],<'certainty':'1.0','comment':'Bile spillage'>)
+// Ternary relationship example: ('dissection', ['atraumatic tissue grasper','ligasure', 'adequate retraction'], <'certainty': '1.0'>)
+// Right now, no way to introduce tuples where one of the objects is a wildcard, only an entity that is referred to by its id.
+message Relation {
+  string type = 1;
+  repeated string entity_ids = 2; // pointer to surgical entity ids.
+  map<string,string> additional_information = 3; // Stores additional information. For example: comment of 'Surgeon rushing', certainty of relationship of '1.0'
+}
+
+// This message defines a set of annotations.
+message AnnotationSet{
+  Tracks tracks = 1; // Definition of events in tracks.
+  repeated Relation temporal_relations = 2; // Temporal relations observed between the events, and/or surgical objects/properties.
+  string annotator_id = 3;
+}
+
+
+// This message defines a model for annotation -- entity_types include specific types of tasks, phases, object types, etc.
+// Relations define the constraints on the entities.
+// Work in progress, followup from the workshop.
+message AnnotationModelDefinition{
+  repeated SurgicalObject entity_types = 1; // The set of all interval types included in the model
+  repeated Relation constraints = 2; // Constraints on the interval relations -- e.g. tasks are within a phase, etc.
+  string version = 3; // Model definition version
+  string instructions_id = 4; // Pointer to a file that includes the set of definitions for annotators.
+}
+
+// TODO: add python code to demonstrate loading/validating a model definition and contrasting with data.
