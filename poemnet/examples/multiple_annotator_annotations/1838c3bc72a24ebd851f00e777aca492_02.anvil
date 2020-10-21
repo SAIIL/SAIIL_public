@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<annotation>
+  <head>
+    <specification src="poem.xml" />
+    <video src="1838c3bc72a24ebd851f00e777aca492.mp4" master="true" />
+    <info key="coder" type="String">DAH</info>
+    <info key="encoding" type="String">UTF8</info>
+  </head>
+  <body>
+    <track name="operative steps" type="primary">
+      <el index="0" start="725" end="745">
+        <attribute name="step">submuc_inject</attribute>
+      </el>
+      <el index="1" start="808" end="895">
+        <attribute name="step">muc_incis</attribute>
+      </el>
+      <el index="2" start="902" end="3189">
+        <attribute name="step">tunnel</attribute>
+      </el>
+      <el index="3" start="3206" end="3825">
+        <attribute name="step">myotomy</attribute>
+      </el>
+      <el index="4" start="3973" end="4333">
+        <attribute name="step">mucos_close</attribute>
+      </el>
+    </track>
+  </body>
+</annotation>
