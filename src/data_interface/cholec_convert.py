@@ -127,6 +127,7 @@ if __name__ == "__main__":
             annotation_set_dicts[key].append(tg_dicts[key])
 
     if params["tool_folder"] is not None:
+        # TODO(guy.rosman): modify tool groups creation to match txt csv format.
         tg_dicts = create_track_groups(track_type="tools", folder=params["tool_folder"])
         for key in tg_dicts:
             if key not in annotation_set_dicts:
