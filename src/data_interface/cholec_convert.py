@@ -69,15 +69,15 @@ def create_track_groups(track_type, folder, label_type):
     txt_files = glob.glob(os.path.join(folder_name, "*.txt"))
     labels_set = set()
     labels_list = list()
-    surgical_entities = []
     for filename in txt_files:
+        surgical_entities = []
         if params["verbose"]:
             print("annotation filename: {}".format(filename))
         video_filename, _ = os.path.splitext(filename)
         _,video_filename = os.path.split(video_filename)
         # import IPython;IPython.embed()
         video_id = video_filename[: -len("-"+track_type)] + ".mp4"
-        video_filename = video_filename[: -len("-"+track_type)] + ".mp4"
+        video_filename = video_filename[: -len("-"+track_type)]
         print(video_filename)
         with open(filename, "r") as fp:
             csvreader = csv.reader(fp, delimiter="\t")
@@ -172,7 +172,6 @@ def create_track_groups(track_type, folder, label_type):
 if __name__ == "__main__":
     args = parse_args()
     params = vars(args)
-    annotation_sets = []
     annotation_set_dicts = {}
     if params["phase_folder"] is not None:
         tg_dicts = create_track_groups(track_type="phase", folder=params["phase_folder"], label_type='label_name')
@@ -190,10 +189,8 @@ if __name__ == "__main__":
             annotation_set_dicts[key].append(tg_dicts[key])
     for key in annotation_set_dicts:
         annotation_set = sages_pb2.AnnotationSet(tracks_groups=annotation_set_dicts[key])
-        annotation_sets.append(annotation_set)
-    output_pathname = os.path.expandvars(os.path.expanduser(params['output']))
-    with open(output_pathname,'wb') as fp:
-        for aset in annotation_sets:
-            fp.write(aset.SerializeToString())
-        fp.close()
+        output_pathname = os.path.expandvars(os.path.expanduser(os.path.join(params['output'],key + '.pb')))
+        with open(output_pathname,'wb') as fp:
+            fp.write(annotation_set.SerializeToString())
+            fp.close()
     
