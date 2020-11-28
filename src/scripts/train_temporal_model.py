@@ -9,9 +9,9 @@ from torch.utils.data import (DataLoader)
 from data_interface.utils import (collate_filter_empty_elements,
                                   process_data_directory_Surgical_Prediction)
 from misc.params import parse_arguments
-from temporal_models.discrete_ed_gan import GANTemporalModel
+from phase_net.discrete_temporal_model import TemporalModel
 from phase_net.temporal_model_trainer import TemporalTrainer
-from visual_models.training_logger import TrainingLogger
+from misc.training_logger import TrainingLogger
 
 if __name__ == '__main__':
     """
@@ -80,14 +80,11 @@ if __name__ == '__main__':
 
 
 
-    temporal_model = GANTemporalModel(num_classes=phases,
-                                      class_names_patient_factor = dataset.class_name_patient_factors,
-                                      encoder_layers=[16],
-                                      decoder_layers=[10],
-                                      device=device,
-                                      lstm_size=32,
-                                      interface_size=interface_size,
-                                      params=params)
+    temporal_model = TemporalModel(num_classes=phases,
+                                   device=device,
+                                   lstm_size=32,
+                                   interface_size=interface_size,
+                                   params=params)
 
     device = torch.device('cpu')
 
