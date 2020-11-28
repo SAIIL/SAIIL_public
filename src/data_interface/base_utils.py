@@ -12,7 +12,7 @@ import xml.etree.ElementTree as ET
 import collections
 import tqdm
 import json
-from data_interface.surgical_prediction_dataset import SurgicalPredictionDataset
+from data_interface.surgical_dataset import SurgicalDataset
 from data_interface.protobuf_dataset import load_protobuf_dir
 
 
@@ -31,10 +31,24 @@ class MissingVideoDirError(BaseException):
         self.directory = dir
 
 
+def create_onehot_nan(path, num_classes):
+    batch_size = path.shape[0]
+    time_size = path.shape[1]
+
+    y_onehot = torch.zeros(batch_size, time_size,
+                           num_classes).float().to(path.device)
+
+    y_onehot.zero_()
+    for batch_idx in range(batch_size):
+        path_batch = path[batch_idx].squeeze(0).cpu().numpy()
+        for idx, path_sample in enumerate(path_batch):
+            if not np.isnan(path_sample):
+                y_onehot[batch_idx, idx, path_sample] = 1.0
+    return y_onehot
 
 
 
-def process_data_directory_Surgical_Prediction(data_dir,
+def process_data_directory_surgery(data_dir,
                                      fractions=[],
                                      width=224,
                                      height=224,
@@ -46,7 +60,6 @@ def process_data_directory_Surgical_Prediction(data_dir,
                                      segment_ratio=1.0,
                                      patient_factor_list = [],
                                      past_length = 10,
-                                     future_length = 10,
                                      train_ratio=0.75,
                                      default_fps=25,
                                      sampler=None,
@@ -93,25 +106,12 @@ def process_data_directory_Surgical_Prediction(data_dir,
     train_video_idx = multidict.MultiDict()
     test_images = []
     test_labels = []
-    train_patient_factor = dict()
-    test_patient_factor = dict()
-    for patient_factor in patient_factor_list:
-        train_patient_factor[patient_factor] = []
-        test_patient_factor[patient_factor] = []
     test_video_idx = multidict.MultiDict()
     track_name=params.get('track_name',None)
     # make sure there's a trailing separator for consistency
     data_dir=os.path.join(data_dir,'')
     class_names, annotations = load_protobuf_dir(
         annotation_dir=annotation_filename, verbose=verbose,phase_translation_file=phase_translation_file)
-
-    # if certain class name labels are not in the dataset, add the name into class names
-    if 'adhesions' in class_names.keys():
-        if 'buried' not in class_names['adhesions']:
-            class_names['adhesions'].insert(1, 'buried')
-    if 'pgs' in class_names.keys():
-        if '5' not in class_names['pgs']:
-            class_names['pgs'].append('5')
 
     if track_name is None:
         track_name=list(class_names.keys())[0]
@@ -134,18 +134,6 @@ def process_data_directory_Surgical_Prediction(data_dir,
         video = cv2.VideoCapture(video_pathname)
         fps = video.get(cv2.CAP_PROP_FPS)
         num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-
-        if 'pgs' in class_names:
-            cvs_time, phases_info = load_cvs_time(phases_info, num_frames)
-
-            inflammation_factor, n_class_inflammation_factor = load_inflammation_patient_factor(phases_info, num_frames, class_names)
-
-            decompression_time = inflammation_factor['deviation steps']['decompression']
-
-            gb_injury_time = inflammation_factor['deviation steps']['decompression']
-            # Yutong: Assumption: the gb injury has duration of 10 frames
-            # TODO: remove or make a reasonable assumption in the future
-            gb_injury_duration = 10
 
         if (fps == 0.0):
             if default_fps is not None:
@@ -201,23 +189,6 @@ def process_data_directory_Surgical_Prediction(data_dir,
             end = float(phase_step[1]['end'])
             label = None
 
-            if 'cvs' in class_names:
-                if frame_idx < cvs_time:
-                    cvs_flag = 0
-                else:
-                    cvs_flag = 1
-
-            if 'gb_injury' in class_names:
-                if frame_idx < gb_injury_time or frame_idx > (gb_injury_time + gb_injury_duration):
-                    gb_injury = 0
-                else:
-                    gb_injury = 1
-
-            if 'distention' in class_names:
-                class_idx = class_names['distention'].index('distended')
-                if frame_idx > decompression_time and inflammation_factor['distention'] == class_idx:
-                    inflammation_factor['distention'] = class_names['distention'].index('normal')
-
             if (training_data):
                 training_frames += 1
             else:
@@ -255,19 +226,6 @@ def process_data_directory_Surgical_Prediction(data_dir,
             if add_frame_to_dataset is False:
                 continue
 
-            #TODO: read patient factor
-            patient_factor_sample = dict()
-            for patient_factor in patient_factor_list:
-                patient_factor_sample[patient_factor] = []
-                if patient_factor == 'cvs':
-                    patient_factor_sample[patient_factor].append(cvs_flag)
-                elif patient_factor == 'GB injury':
-                    patient_factor_sample[patient_factor].append(gb_injury)
-                elif patient_factor in ['distention', 'appearance', 'hyperemic', 'intra_hepatic', 'necrotic', 'pgs', 'adhesions']:
-                    patient_factor_sample[patient_factor].append(inflammation_factor[patient_factor])
-
-                patient_factor_sample[patient_factor] = np.array(patient_factor_sample[patient_factor])
-
             img = (video_pathname, frame_idx)
 
             try:
@@ -298,13 +256,10 @@ def process_data_directory_Surgical_Prediction(data_dir,
         print('there is nan in labels')
 
 
-    train_dataset = SurgicalPredictionDataset(train_images,
+    train_dataset = SurgicalDataset(train_images,
                                          train_labels,
-                                         train_patient_factor,
                                          train_video_idx,
                                          past_length=past_length,
-                                         future_length=future_length,
-                                         patient_factor_name_list=patient_factor_list,
                                          fps = fps,
                                          width=width,
                                          height=height,
@@ -313,13 +268,10 @@ def process_data_directory_Surgical_Prediction(data_dir,
 
 
 
-    val_dataset = SurgicalPredictionDataset(test_images,
+    val_dataset = SurgicalDataset(test_images,
                                        test_labels,
-                                       test_patient_factor,
                                        test_video_idx,
                                        past_length=past_length,
-                                       future_length=future_length,
-                                       patient_factor_name_list=patient_factor_list,
                                        fps = fps,
                                        width=width,
                                        height=height,
@@ -329,79 +281,6 @@ def process_data_directory_Surgical_Prediction(data_dir,
     dataloaders = {'train': train_dataset, 'val': val_dataset}
     return dataloaders
 
-
-def load_cvs_time(phases_info,num_frames):
-    if 'Dissection with no CVS' in phases_info.keys():
-        cvs_time = float(phases_info['Dissection with no CVS']['end'])
-        del phases_info['Dissection with no CVS']
-        del phases_info['Dissection with CVS obtained']
-    else:
-        cvs_time = num_frames
-
-    return cvs_time, phases_info
-
-
-def load_inflammation_patient_factor(phases_info, num_frames, class_names):
-    labels= dict()
-    patient_factor = dict()
-    n_class_patient_factor = dict()
-    # initiate the patient factor values
-    for track_name in class_names.keys():
-        if track_name != 'major operative phases':
-            labels[track_name] = -1
-            n_class_patient_factor[track_name] = len(class_names[track_name])
-            # not a category variable for deviation steps
-            if track_name == 'deviation steps':
-                patient_factor[track_name] = dict()
-                for key in class_names[track_name]:
-                    patient_factor[track_name][key] = num_frames
-            if track_name == 'appearance':
-                for key in ['hyperemic', 'intra_hepatic', 'necrotic']:
-                    patient_factor[key] = 0
-
-
-
-    for key in phases_info.keys():
-        phase = phases_info[key]
-        track_name = phase['track_name']
-        if track_name != 'major operative phases':
-            if track_name == 'distention':
-                patient_factor[track_name] = class_names['distention'].index(key)
-            elif track_name == 'pgs':
-                patient_factor[track_name] = class_names['pgs'].index(key)
-            elif track_name == 'adhesions':
-                patient_factor[track_name] = class_names['adhesions'].index(key)
-            elif track_name == 'appearance':
-                label = class_names['appearance'].index(key)
-                patient_factor[label] = 1.0
-            elif track_name == 'deviation steps':
-                patient_factor[track_name][key] = phase['start'] * 1e3
-
-    if 'adhesions' not in patient_factor.keys():
-        patient_factor['adhesions'] = class_names['adhesions'].index('none')
-    if 'pgs' not in patient_factor.keys():
-        patient_factor['pgs'] = class_names['pgs'].index('1')
-
-    return patient_factor, n_class_patient_factor
-
-def process_data_directory(type, data_dir, **kwargs):
-    '''
-    Wrapper function for reading a data directory, with multiple formats. In the process of transitioning into
-    process_data_directory_multidict and phasing out the other formats
-    :param type:
-    :param data_dir:
-    :param kwargs:
-    :return:
-    '''
-    if canonical_caseless(type) == canonical_caseless('multidict'):
-        return process_data_directory_multidict(data_dir, **kwargs)
-    else:
-        class WrongDatasetType(BaseException):
-            def __init__(self, type):
-                self.type = type
-
-        raise (WrongDatasetType(type))
-        # return None
 
 
 def write_results_to_txt(estimate_list=None,
