@@ -7,11 +7,12 @@ Install cuda as needed - we use cuda 10.0
 
 ## Install conda environment 
 ```
-conda env create -f ./env.saiil.yml -n saiil
+conda env create -f ~/SAIIL_public/src/env.saiil.yml -n saiil
 ```
 
 ## Create protobuf wrappers
 ```
+cd ~/SAIIL_public/src
 protoc --python_out=data_interface/ ./data_interface/sages.proto
 ```
 
