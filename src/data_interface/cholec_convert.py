@@ -8,7 +8,7 @@ import google
 import numpy as np
 
 from data_interface import sages_pb2
-
+import google.protobuf.timestamp_pb2
 
 def parse_args():
     """Parse arguments
