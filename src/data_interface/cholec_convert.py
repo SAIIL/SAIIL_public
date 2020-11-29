@@ -189,7 +189,10 @@ if __name__ == "__main__":
             annotation_set_dicts[key].append(tg_dicts[key])
     for key in annotation_set_dicts:
         annotation_set = sages_pb2.AnnotationSet(tracks_groups=annotation_set_dicts[key])
-        output_pathname = os.path.expandvars(os.path.expanduser(os.path.join(params['output'],key + '.pb')))
+        folder_name = os.path.expandvars(os.path.expanduser(params['output']))
+        os.makedirs(folder_name, exist_ok=True)
+
+        output_pathname = os.path.join(folder_name,key + '.pb')
         with open(output_pathname,'wb') as fp:
             fp.write(annotation_set.SerializeToString())
             fp.close()
