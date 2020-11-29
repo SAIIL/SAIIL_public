@@ -18,10 +18,6 @@ export gan_past_length
 echo $gan_past_length
 
 
-gan_future_length=10
-export gan_future_length
-echo $gan_future_length
-
 ulimit -n 4096
 
 num_dataloader_workers_trainer=32
