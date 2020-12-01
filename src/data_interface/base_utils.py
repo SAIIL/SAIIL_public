@@ -111,7 +111,9 @@ def process_data_directory_surgery(data_dir,
     # make sure there's a trailing separator for consistency
     data_dir=os.path.join(data_dir,'')
     class_names, annotations = load_protobuf_dir(
-        annotation_dir=annotation_filename, verbose=verbose,phase_translation_file=phase_translation_file)
+
+    annotation_dir=annotation_filename, verbose=verbose,phase_translation_file=phase_translation_file, allowed_track_names=[track_name])
+
 
     if track_name is None:
         track_name=list(class_names.keys())[0]
@@ -296,7 +298,8 @@ def write_results_to_txt(estimate_list=None,
     :param res_dir:
     :param video_name_list_filename:
     :param estimate_fps: the estimation frame rate
-    :param write_fps: the output frame rate
+    :param write_fps: the outp
+    ut frame rate
     :return:
     '''
 

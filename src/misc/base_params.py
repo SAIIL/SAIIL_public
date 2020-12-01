@@ -35,6 +35,7 @@ def parse_arguments(default_modelname='visual_models.pt',default_temporal_modeln
     parser.add_argument('--num_training_experiments', action='store', type=int, default=1, help="number of training experiments/repetitions")
     parser.add_argument('--disable_cuda', action='store', type=bool, default=False, help="should disable cuda")
     parser.add_argument('--cuda_device', action='store', type=str, default="0", help="cuda device index: 0 or 1")
+    parser.add_argument('--track_name', action='store', type=str, default=None, help="track name to use for phases")
     # JSON file to map phase names
     parser.add_argument('--phase_translation_file', action='store', default=None, help="")
 

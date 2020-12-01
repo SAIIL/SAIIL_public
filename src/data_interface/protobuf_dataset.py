@@ -10,7 +10,8 @@ from data_interface.sages_pb2 import *
 def load_protobuf_dir(annotation_dir,
                        missing_annotations_is_okay=False,
                        prefix='',
-                       verbose=True,phase_translation_file=None):
+                       verbose=True,phase_translation_file=None, allowed_track_names=None):
+
     '''
     load annotation information from protobuf dataset
     :param annotation_dir: a folder contains .pb files
@@ -18,11 +19,11 @@ def load_protobuf_dir(annotation_dir,
     :param prefix: prefix string if any
     :param verbose:
     :param phase_translation_file: the phase translation filename
+    :param allowed_track_names: the track names that will actually be read. Use None to allow all tracks.
     :return:
     '''
     steps = {}
     annotations = {}
-
 
     files_list = sorted(glob.glob(os.path.join(annotation_dir, '*.pb')))
     if phase_translation_file is not None:
@@ -48,6 +49,9 @@ def load_protobuf_dir(annotation_dir,
                 'track_name'] == 'other steps':
                 continue
             track_name = trk['track_name']
+            if allowed_track_names is not None and track_name not in allowed_track_names:
+                continue
+
 
             props = trk['entity'].event
             name = props.type
