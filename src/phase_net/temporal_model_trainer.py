@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, SubsetRandomSampler
 
-from data_interface.surgical_prediction_dataset import DATASET_KEY_IMAGES
+from data_interface.surgical_dataset import DATASET_KEY_IMAGES
 
 
 class TemporalTrainer():
@@ -70,7 +70,6 @@ class TemporalTrainer():
         for idx, sample in enumerate(self.partial_data):
             inps = sample['phase_trajectory']
             inps_img = sample[DATASET_KEY_IMAGES]
-            tgts = sample['tgts_phase_trajectory']
             inps = inps.to(self.device)
 
             self.phase_identification_optimizer.zero_grad()

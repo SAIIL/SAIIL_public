@@ -6,12 +6,12 @@ import tqdm
 import copy
 from torch.utils.data import (DataLoader)
 
-from data_interface.utils import (collate_filter_empty_elements,
-                                  process_data_directory_Surgical_Prediction)
-from misc.params import parse_arguments
-from temporal_models.discrete_ed_gan import GANTemporalModel
+from data_interface.base_utils import (collate_filter_empty_elements,
+                                  process_data_directory_surgery)
+from misc.base_params import parse_arguments
+from phase_net.discrete_temporal_model import TemporalModel
 from phase_net.temporal_model_trainer import TemporalTrainer
-from visual_models.training_logger import TrainingLogger
+from misc.training_logger import TrainingLogger
 
 if __name__ == '__main__':
     """
@@ -31,7 +31,6 @@ if __name__ == '__main__':
     print('device = cuda:' + str(device))
 
     past_length = args.gan_past_length
-    future_length = args.gan_future_length
 
     save_step = 10
     # TODO: add parameters
@@ -39,29 +38,25 @@ if __name__ == '__main__':
 
     # TODO(guy.rosman): move these to args
     params2 = {
-        'sample_length': future_length,
+        'sample_length': past_length,
         'mse_coeff': args.mse_coeff,
         'tbptt': past_length // 2,
         'discrete_softmax_coeff': 1,
         'n_decoding_samples': 10,  # the number of samples generated per channel
-        'dropout_ratio': 0.0,
-        'past_emr_keys': None,
-        'future_emr_keys': None
+        'dropout_ratio': 0.0
     }
     params.update(params2)
 
-    trajectory_prediction_datasets = process_data_directory_Surgical_Prediction(
+    trajectory_prediction_datasets = process_data_directory_surgery(
         data_dir=args.data_dir,
         fractions=args.fractions,
         width=args.image_width,
         height=args.image_height,
         sampling_rate=args.sampling_rate,
         past_length=past_length,
-        future_length=future_length,
         batch_size=args.batch_size,
         num_workers=args.num_dataloader_workers,
         sampler=None,
-        patient_factor_list=[],
         verbose=False,
         annotation_filename=args.annotation_filename,
         temporal_len=args.temporal_length,
@@ -80,14 +75,11 @@ if __name__ == '__main__':
 
 
 
-    temporal_model = GANTemporalModel(num_classes=phases,
-                                      class_names_patient_factor = dataset.class_name_patient_factors,
-                                      encoder_layers=[16],
-                                      decoder_layers=[10],
-                                      device=device,
-                                      lstm_size=32,
-                                      interface_size=interface_size,
-                                      params=params)
+    temporal_model = TemporalModel(num_classes=phases,
+                                   device=device,
+                                   lstm_size=32,
+                                   interface_size=interface_size,
+                                   params=params)
 
     device = torch.device('cpu')
 
