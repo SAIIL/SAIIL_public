@@ -11,6 +11,7 @@ def load_protobuf_dir(annotation_dir,
                        missing_annotations_is_okay=False,
                        prefix='',
                        verbose=True,phase_translation_file=None, allowed_track_names=None):
+
     '''
     load annotation information from protobuf dataset
     :param annotation_dir: a folder contains .pb files
@@ -50,6 +51,7 @@ def load_protobuf_dir(annotation_dir,
             track_name = trk['track_name']
             if allowed_track_names is not None and track_name not in allowed_track_names:
                 continue
+
 
             props = trk['entity'].event
             name = props.type
