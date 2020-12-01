@@ -7,7 +7,7 @@ install_requires = []
 __version__ = '0.1.0'
 
 d = setup(
-    name='sdtm',
+    name='saiil_public',
     version=__version__,
     packages=find_packages(exclude=['tests*', 'docs*']),
     install_requires=install_requires,
