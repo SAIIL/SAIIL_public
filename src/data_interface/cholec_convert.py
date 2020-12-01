@@ -128,7 +128,7 @@ def create_track_groups(track_type, folder, label_type):
                     row_label = row[1]
                     labels_set.add(row_label)
                     
-                    if not row_label == last_label:
+                    if not row_label == last_label or is_last:
                         if last_label is None:
                             last_label = row_label
                             interval_start_id = row_id
