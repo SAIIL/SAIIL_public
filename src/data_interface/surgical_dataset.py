@@ -21,8 +21,7 @@ DATASET_KEY_VALID_LIST = 'valid_list'
 
 
 class SurgicalDataset(Dataset):
-    """Dataset for images and corresponding labels"""
-
+    """Dataset for videos and corresponding labels"""
 
     def __init__(self,
                  images_list = [],
@@ -91,6 +90,8 @@ class SurgicalDataset(Dataset):
         opened_video=False
         file_ptr = -1
         video_name = None
+
+        # Go over images for each subsequence.
         for idx_img, video_info in enumerate(sample_img_name_list):
             if type(sample_img_name_list[idx_img]) is not tuple:
                 img = np.zeros((3,self.height,self.width))
@@ -102,6 +103,7 @@ class SurgicalDataset(Dataset):
                 cache_pathname = None
                 time_idx = frame_no / self.fps
 
+                # Obtain cache pathname.
                 if not (self.cache_dir == ''):
                     # cache img in separate video folder e.g. cache_dir/video_name/*.jpg
                     cache_dir_video = os.path.join(self.cache_dir, os.path.split(video_name)[-1].split('.')[0])
@@ -118,6 +120,7 @@ class SurgicalDataset(Dataset):
                     cache_img_name = str(frame_no) + '_' + str(round(time_idx, 2)) + '_' + class_name + '_' + str(self.height) + '_' + str(self.width)
                     cache_pathname = os.path.join(cache_dir_video, cache_img_name) + '.jpg'
 
+                # Load cached file if it exits.
                 if cache_pathname is not None and os.path.exists(cache_pathname):
                     try:
                         im_pil = Image.open(cache_pathname)

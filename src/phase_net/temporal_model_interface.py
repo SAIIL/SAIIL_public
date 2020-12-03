@@ -61,7 +61,6 @@ class TemporalModelItfc(TemporalModelPublicItfc):
         """
         pass
 
-
     @abstractmethod
     def get_phase_identification_params(self, requires_grad=True):
         """
@@ -70,7 +69,6 @@ class TemporalModelItfc(TemporalModelPublicItfc):
         :return:
         """
         pass
-
 
     @abstractmethod
     def predict(self, observations, start_i=0):
@@ -102,7 +100,7 @@ class TemporalModelItfc(TemporalModelPublicItfc):
         pass
 
     @abstractmethod
-    def forward_task(self,task_name):
+    def forward_task(self, task_name):
         """
         Run the task module
         :param task_name:
