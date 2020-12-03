@@ -18,12 +18,10 @@ def parse_arguments(additional_setters=[],):
 
     parser.add_argument("--annotation_filename", action="store", default="Updated Annotations Sleeve.ods", help="")
     parser.add_argument("--results_filename", action="store", default="results.pkl", help="")
-    parser.add_argument("--model_filename", action="store", default=default_modelname, help="")
-    parser.add_argument("--temporal_model_filename", action="store", default=default_temporal_modelname, help="")
-    parser.add_argument("--dataset_type", action="store", default=default_dataset_type, help="")
+    parser.add_argument("--model_filename", action="store", default="default_modelname", help="")
+    parser.add_argument("--temporal_model_filename", action="store", default="default_temporal_modelname", help="")
     parser.add_argument("--output_filename", action="store", default="output.pkl", help="")
-    parser.add_argument("--num_epochs", action="store", type=int, default=100, help="")
-    parser.add_argument("--confusion_matrix_samples", action="store", type=int, default=10000, help="")
+    parser.add_argument("--num_epochs", action="store", type=int, default=20, help="")
     parser.add_argument("--learning_rate", action="store", type=float, default=0.001, help="Learning rate for training")
     parser.add_argument(
         "--fractions",
@@ -37,6 +35,7 @@ def parse_arguments(additional_setters=[],):
     parser.add_argument("--segment_ratio", action="store", type=float, default=1.0, help="")
     parser.add_argument("--sampling_step", action="store", type=int, default=50, help="")
     parser.add_argument("--temporal_length", action="store", type=int, default=8, help="")
+    parser.add_argument("--lstm_size", action="store", type=int, default=64, help="")
     parser.add_argument("--num_dataloader_workers", action="store", type=int, default=4, help="")
     parser.add_argument("--saving_step", action="store", type=int, default=10, help="")
     parser.add_argument("--batch_size", action="store", type=int, default=64, help="")
@@ -64,8 +63,6 @@ def parse_arguments(additional_setters=[],):
         default="all",
         help="A str of (gt_label)_(pred_label) denoting which examples to view, e.g. '1,2'. If set to 'errors', view all examples that are mislabeled in the confusion matrix. If 'all', sample all examples (need to add)",
     )
-    parser.add_argument("--view_type", action="store", type=str, default="image", help="How to show examples. Options include: image - show the frame and video filename, time in the video, text - write a list of examples as a text format.")
-    parser.add_argument("--load_pretrained_model", action="store_true", default=None, help="")
     parser.add_argument(
         "--sampling_rate", action="store", type=float, default=5, help=""
     )  # unit frame per second (fps)
@@ -76,11 +73,9 @@ def parse_arguments(additional_setters=[],):
         help="Phase order json, to make visualization well defined.",
     )
     parser.add_argument("--phase_transition_filename", action="store", default=None, help="")
-    parser.add_argument("--phase_length_filename", action="store", default=None, help="")
     parser.add_argument("--video_name_list_filename", action="store", default=None, help="")
     parser.add_argument("--training_filename", action="store", default=None, help="")
     parser.add_argument("--inference_filename", action="store", default=None, help="")
-    parser.add_argument("--plot_save_dir", action="store", default=None, help="")
     parser.add_argument(
         "--multitask_list",
         "--list",
@@ -89,7 +84,6 @@ def parse_arguments(additional_setters=[],):
         help="e.g. progress_regressor or img_reconstruction",
         required=False,
     )
-    parser.add_argument("--lstm_size", action="store", type=int, default=64, help="")
     parser.add_argument("--plot_fingerprints", action="store", type=bool, default=False, help="should plot results")
     parser.add_argument(
         "--plot_confusion_matrix", action="store", type=bool, default=False, help="should plot confusion matrix"
@@ -102,7 +96,6 @@ def parse_arguments(additional_setters=[],):
     parser.add_argument("--mse_coeff", action="store", type=float, default=0.5, help="")
     parser.add_argument("--verbose", action="store_true", default=None, help="")
 
-    parser.add_argument("--fingerprints_filename", action="store", default=None, help="")
     parser.add_argument("--phase_pretrain_iter", action="store", type=int, default=100, help="")
 
 

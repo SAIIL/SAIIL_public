@@ -22,15 +22,15 @@ class TemporalTrainer:
         )
         self.device = device
         self.epoch_size_phase_id = params["epoch_size_phase_id"]
-        self.path_length = params["sample_length"]
-        self.mse_coeff = params["mse_coeff"]
+        self.path_length = params["temporal_length"]
+        self.mse_coeff = params.get("mse_coeff", "0.0")
         self.logger = logger
         self.num_classes = model.get_num_phases()
         self.log_prefix = params.get("log_prefix", "000")
         self.total_batch_cnt = 0
         self.partial_data = None
         self.update_real_data(data)
-        self.tbptt = params["tbptt"]
+        self.tbptt = params.get("tbptt",'5')
         self.data_loss = torch.nn.CrossEntropyLoss(weight=self.real_dataset.dataset.class_weights.float().to(device))
         self.data_loss_past = torch.nn.CrossEntropyLoss(
             weight=self.real_dataset.dataset.class_weights.float().to(device)
