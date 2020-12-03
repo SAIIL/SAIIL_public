@@ -27,7 +27,7 @@ def load_protobuf_dir(annotation_dir,
 
     files_list = sorted(glob.glob(os.path.join(annotation_dir, '*.pb')))
     if phase_translation_file is not None:
-        from data_interface.utils import read_phase_mapping
+        from data_interface.base_utils import read_phase_mapping
         phase_name_map = read_phase_mapping(phase_translation_file)
     else:
         phase_name_map = {}
@@ -89,7 +89,7 @@ def load_protobuf_dir(annotation_dir,
 
     if len(annotations) == 0 and not missing_annotations_is_okay:
         print('Missing annotations: ' + annotation_dir)
-        from data_interface.utils import MissingAnnotationsError
+        from data_interface.base_utils import MissingAnnotationsError
         raise MissingAnnotationsError(annotation_dir)
     # sort the class_name in alphabet order, otherwise each training has different class names
     class_names = {}
