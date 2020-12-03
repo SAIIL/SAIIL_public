@@ -91,11 +91,11 @@ if __name__ == "__main__":
     statedict_filename = args.model_filename
     fullmodel_filename = statedict_filename
     for it in tqdm.tqdm(range(args.num_epochs), desc="phase identification iterations"):
-        if it < args.phase_pretrain_iter / 2:
+        if it < args.num_epochs / 2:
             pretrain_flag = "visual"  
         else:
             pretrain_flag = "lstm"
-        if it == args.phase_pretrain_iter / 2:
+        if it == args.num_epochs / 2:
             trainer.model.visual_model = copy.deepcopy(trainer.model.visual_encoder)
             trainer.phase_identification_optimizer = torch.optim.Adam(
                 params=trainer.phase_id_params, lr=0.1 * trainer.learning_rate, weight_decay=1e-4
