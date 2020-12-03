@@ -8,6 +8,14 @@ from torch import nn
 
 
 def create_fc_net(sizes):
+    """Create a fully-connected network module
+
+    Args:
+        sizes (list): A list of network layer widths.
+
+    Returns:
+        nn.Module: A fully-connected network.
+    """
     module_list=[]
     module_list.append(torch.nn.Dropout())
     for i,(sz_a, sz_b) in enumerate(zip(sizes[:-1],sizes[1:])):
@@ -22,6 +30,12 @@ def create_fc_net(sizes):
 
 class VisualModel(torch.nn.Module):
     def __init__(self,base_model,num_phases):
+        """A CNN model for image processing
+
+        Args:
+            base_model (nn.Module): the base module to use, has an fc submodule.
+            num_phases (int): number of output phases/classes.
+        """
         super().__init__()
         self.base_model=base_model
         self.base_model_output_dim = self.base_model.fc[-1].out_features
@@ -54,17 +68,26 @@ class VisualModel(torch.nn.Module):
         return phases_output
 
 def create_simple_visual_network(num_classes, int_dim = [200,100]):
+    """Create a visual network for phase classification.
+
+    Args:
+        num_classes (int): Number of classes to be used.
+        int_dim (list, optional): FC layers to use. Defaults to [200,100].
+
+    Returns:
+        nn.Module: [description]
+    """
     '''
     Creates a visual classification network based on a resnet structure
-    :param num_classes: Number of classes to be used..
-    :param int_dim: FC layers to use.
+    :param num_classes: 
+    :param int_dim: 
     :return: a torch module that accepts images and returns the scores of each of the num_classes classes
     '''
     model = torchvision.models.resnet18(pretrained=True)
 
     sizes=[model.fc.in_features]
     sizes.extend(int_dim)
-    # sizes.append(num_classes)
+
     module_list=[]
     module_list.append(torch.nn.Dropout())
     for i,(sz_a, sz_b) in enumerate(zip(sizes[:-1],sizes[1:])):
@@ -95,7 +118,7 @@ def create_simple_visual_network(num_classes, int_dim = [200,100]):
 
 class TemporalModel(TemporalModelItfc):
     """
-    Vanilla temporal model w/ LSTM
+    Vanilla temporal analysis model w/ LSTM.
     """
     def __init__(self,
                  num_classes,
@@ -184,12 +207,6 @@ class TemporalModel(TemporalModelItfc):
 
     def init_hidden_state(self, example_tensor):
         pass
-
-    def predict(self, observations, start_i=0):
-        pass
-
-    def predict_log_prob(self, observations, start_i=None):
-        return None
 
     def generate_past_phase_belief(self, observations, imgs):
         """
