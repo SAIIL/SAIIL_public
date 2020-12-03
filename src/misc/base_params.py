@@ -96,10 +96,6 @@ def parse_arguments(additional_setters=[],):
     parser.add_argument("--mse_coeff", action="store", type=float, default=0.5, help="")
     parser.add_argument("--verbose", action="store_true", default=None, help="")
 
-    parser.add_argument("--phase_pretrain_iter", action="store", type=int, default=100, help="")
-
-
-
     parser.add_argument(
         "--model_analysis_modes",
         nargs="+",
