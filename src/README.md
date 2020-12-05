@@ -13,7 +13,7 @@ conda env create -f ~/SAIIL_public/src/env.saiil.yml -n saiil
 ## Create protobuf wrappers
 ```
 cd ~/SAIIL_public/src
-protoc --python_out=data_interface/ ./data_interface/sages.proto
+protoc --python_out=./ ./data_interface/sages.proto
 ```
 
 ## Convert cholec80 to protobuf
