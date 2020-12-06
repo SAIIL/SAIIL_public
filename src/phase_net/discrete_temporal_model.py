@@ -76,6 +76,7 @@ def create_simple_visual_network(num_classes, int_dim = [200,100]):
 
     Returns:
         nn.Module: [description]
+    """
     model = torchvision.models.resnet18(pretrained=True)
 
     sizes = [model.fc.in_features]
