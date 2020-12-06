@@ -35,7 +35,7 @@ def load_protobuf_dir(annotation_dir,
 
     files_list = sorted(glob.glob(os.path.join(annotation_dir, '*.pb')))
     if phase_translation_file is not None:
-        from data_interface.utils import read_phase_mapping
+        from data_interface.base_utils import read_phase_mapping
         phase_name_map = read_phase_mapping(phase_translation_file)
     else:
         phase_name_map = {}
