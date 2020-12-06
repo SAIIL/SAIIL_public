@@ -67,8 +67,7 @@ class VisualModel(torch.nn.Module):
         phases_output = self.phases_head(output)
         return phases_output
 
-
-def create_simple_visual_network(num_classes, int_dim=[200, 100]):
+def create_simple_visual_network(num_classes, int_dim = [200,100]):
     """Create a visual network for phase classification.
 
     Args:
@@ -77,12 +76,6 @@ def create_simple_visual_network(num_classes, int_dim=[200, 100]):
 
     Returns:
         nn.Module: [description]
-    """
-    """
-    Creates a visual classification network based on a resnet structure
-    :param num_classes: 
-    :param int_dim: 
-    :return: a torch module that accepts images and returns the scores of each of the num_classes classes
     """
     model = torchvision.models.resnet18(pretrained=True)
 
