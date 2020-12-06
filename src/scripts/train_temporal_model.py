@@ -1,21 +1,22 @@
+import copy
 import hashlib
 import os
 import time
+
 import torch.nn
 import tqdm
-import copy
-from torch.utils.data import (DataLoader)
+from torch.utils.data import DataLoader
 
-from data_interface.base_utils import (collate_filter_empty_elements,
-                                  process_data_directory_surgery)
 from misc.base_params import parse_arguments
+from data_interface.base_utils import collate_filter_empty_elements
+from data_interface.protobuf_dataset import process_data_directory_surgery
+from misc.training_logger import TrainingLogger
 from phase_net.discrete_temporal_model import TemporalModel
 from phase_net.temporal_model_trainer import TemporalTrainer
-from misc.training_logger import TrainingLogger
 
 if __name__ == '__main__':
     """
-    A test function for GAN and trainer. Under construction..
+    A training example for phase segementation network.
     """
     args = parse_arguments()
     simulate_data = False

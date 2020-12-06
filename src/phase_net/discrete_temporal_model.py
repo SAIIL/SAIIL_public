@@ -208,7 +208,7 @@ class TemporalModel(TemporalModelItfc):
     def init_hidden_state(self, example_tensor):
         pass
 
-     def generate_past_phase_belief(self, observations, imgs):
+    def generate_past_phase_belief(self, observations, imgs):
         """
         generate a sample path, given as class belief per timepoint
         :param observations:

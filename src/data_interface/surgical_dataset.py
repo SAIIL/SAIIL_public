@@ -22,8 +22,6 @@ DATASET_KEY_VALID_LIST = 'valid_list'
 
 class SurgicalDataset(Dataset):
     """Dataset for images and corresponding labels"""
-
-
     def __init__(self,
                  images_list = [],
                  labels_list = [],
