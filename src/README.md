@@ -41,6 +41,7 @@ Run:
 ```
 ~/SAIIL_public/src/scripts/run_script_temporal_model.sh
 ```
+(Verify that the folder names match your repository clone, and that you have compiled the protobuf, and downloaded/converted cholec80 data to protobuf)
 
 The code includes a phase classification network with:
 * Resnet-finetuned visual model.
