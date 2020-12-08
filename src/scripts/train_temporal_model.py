@@ -30,10 +30,8 @@ if __name__ == "__main__":
     print("device = cuda:" + str(device))
 
     save_step = 10
-    # TODO: add parameters
-    params = vars(args)
 
-    # TODO(guy.rosman): move these to args
+    params = vars(args)
 
     trajectory_prediction_datasets = process_data_directory_surgery(
         data_dir=args.data_dir,
@@ -53,7 +51,7 @@ if __name__ == "__main__":
         seed=1234,
         phase_translation_file=args.phase_translation_file,
         cache_dir=args.cache_dir,
-        params=vars(args),
+        params=params,
     )
 
     dataset = trajectory_prediction_datasets["train"]
