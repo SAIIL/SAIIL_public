@@ -15,31 +15,36 @@ peroral endoscopic myotomy", DOI 10.1007/s00464-020-07833-9:
  
 ## Instructions for setting up SAGES protobuf SDK:
 
-### Install miniconda from:
-https://docs.conda.io/en/latest/miniconda.html
-
-Install cuda as needed - we use cuda 10.0, on Ubuntu 18.04.
-
-### Install conda environment 
+### Clone the repository
+### Install miniconda environment for the SDK
+* Install cuda as needed - we assume cuda 10.0, Ubuntu 18.04.
+* Set environment variable for repository location: We assume
 ```
-conda env create -f ~/SAIIL_public/src/env.saiil.yml -n saiil
+export SAIIL_PUBLIC=~/SAIIL_public
+```
+* Install miniconda from [https://docs.conda.io/en/latest/miniconda.html](https://docs.conda.io/en/latest/miniconda.html).
+* Install conda environment:
+```
+conda env create -f ${SAIIL_PUBLIC}/src/env.saiil.yml -n saiil
 ```
 
 ### Create protobuf wrappers
 ```
-cd ~/SAIIL_public/src
+cd ${SAIIL_PUBLIC}/src
 protoc --python_out=./ ./data_interface/sages.proto
 ```
 
 ### Convert cholec80 to protobuf
+* Download Cholec80 from the [Cholec80 website](http://camma.u-strasbg.fr/datasets) at Uni. of Strasbourg.
+* Convert the Cholec80 data using the following command:
 ```
-python ~/SAIIL_public/src/data_interface/cholec_convert.py  ~/SAIIL_public/data/annotations/cholec80_protobuf/ --phase-folder  ~/SAIIL_public/data/cholec80/phase_annotations -v --tool-folder ~/SAIIL_public/data/cholec80/tool_annotations
+python ${SAIIL_PUBLIC}/src/data_interface/cholec_convert.py  ${SAIIL_PUBLIC}/data/annotations/cholec80_protobuf/ --phase-folder  ${SAIIL_PUBLIC}/data/cholec80/phase_annotations -v --tool-folder ${SAIIL_PUBLIC}/data/cholec80/tool_annotations
 ```
 
 ### Train an example phase classification network
 Run:
 ```
-~/SAIIL_public/src/scripts/run_script_temporal_model.sh
+${SAIIL_PUBLIC}/src/scripts/run_script_temporal_model.sh
 ```
 (Verify that the folder names match your repository clone, and that you have compiled the protobuf, and downloaded/converted cholec80 data to protobuf)
 
