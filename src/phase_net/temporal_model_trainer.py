@@ -89,9 +89,9 @@ class TemporalTrainer:
 
         if self.logger:
             scalars = {
-                "data_cost_past": total_data_loss_past / idx,
+                "data_cost": total_data_loss_past / idx,
                 "residual": ((p1 - p2) ** 2).mean().cpu().item(),
-                "log10_residual_generator": ((p1 - p2) ** 2 + 1e-10).mean().log10().cpu().item(),
+                "log10_residual": ((p1 - p2) ** 2 + 1e-10).mean().log10().cpu().item(),
             }
             self.logger.log_train(self.total_batch_cnt, scalars, None, prefix=self.log_prefix)
 
