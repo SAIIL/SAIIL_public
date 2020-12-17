@@ -29,6 +29,8 @@ if __name__ == "__main__":
     device = torch.device(str_cuda_device if (torch.cuda.is_available() and not args.disable_cuda) else "cpu")
     print("device = cuda:" + str(device))
 
+    os.makedirs('./visual_weights', exist_ok=True)
+    os.makedirs('./temporal_weights', exist_ok=True)
     save_step = 10
 
     params = vars(args)
