@@ -34,6 +34,7 @@ class SurgicalDataset(Dataset):
                  class_names = None,
                  track_name = None,
                  cache_dir = None,
+                 video_data_type = 'video',
                  fps = 30,
                  params=None):
         '''
@@ -68,6 +69,7 @@ class SurgicalDataset(Dataset):
         self.class_names = class_names[track_name]
         self.num_classes = len(self.class_names)
         self.fps = fps
+        self.video_data_type = video_data_type
 
         self.create_phase_trajectories()
         # create weights for imbalanced data classes
@@ -130,21 +132,26 @@ class SurgicalDataset(Dataset):
 
                 if image is None:
                     # print(video_name)
-                    try:
-                        if not opened_video:
-                            cap = cv2.VideoCapture(video_name)
-                            if (cap == 0):
-                                print('Failed to open ' + video_name)
-                                return [None, -1]
-                            opened_video = True
-                        if not (file_ptr == frame_no):
-                            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_no)
-                            file_ptr = frame_no
+                    if self.video_data_type == 'video':
+                        try:
+                            if not opened_video:
+                                cap = cv2.VideoCapture(video_name)
+                                if (cap == 0):
+                                    print('Failed to open ' + video_name)
+                                    return [None, -1]
+                                opened_video = True
+                            if not (file_ptr == frame_no):
+                                cap.set(cv2.CAP_PROP_POS_FRAMES, frame_no)
+                                file_ptr = frame_no
 
-                        total_video_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-                        ret, image = cap.read()
-                    except:
-                        print("video loading error")
+                            total_video_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                            ret, image = cap.read()
+                        except:
+                            print("video loading error")
+                    elif self.video_data_type == 'images':
+                        img_filename = os.path.join(video_name, str(frame_no).zfill(6) + '.png')
+                        image = cv2.imread(img_filename)
+
                     if image is None:
                         img = np.float('NaN')
                     else:
