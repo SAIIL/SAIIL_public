@@ -11,10 +11,12 @@
 #
 # python ./sages_protobuf_example.py
 #
-import time
-from google.protobuf.json_format import MessageToJson, MessageToDict
-from torch.utils.data import Dataset
 import json
+import time
+
+from google.protobuf.json_format import MessageToDict, MessageToJson
+from torch.utils.data import Dataset
+
 from sages_pb2 import *
 
 example_event = Event()
