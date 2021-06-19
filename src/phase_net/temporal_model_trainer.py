@@ -1,8 +1,7 @@
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, SubsetRandomSampler
-
 from data_interface.surgical_dataset import DATASET_KEY_IMAGES
+from torch.utils.data import DataLoader, SubsetRandomSampler
 
 
 class TemporalTrainer:
@@ -30,7 +29,7 @@ class TemporalTrainer:
         self.total_batch_cnt = 0
         self.partial_data = None
         self.update_real_data(data)
-        self.tbptt = params.get("tbptt",'5')
+        self.tbptt = params.get("tbptt", "5")
         self.data_loss = torch.nn.CrossEntropyLoss(weight=self.real_dataset.dataset.class_weights.float().to(device))
         self.data_loss_past = torch.nn.CrossEntropyLoss(
             weight=self.real_dataset.dataset.class_weights.float().to(device)

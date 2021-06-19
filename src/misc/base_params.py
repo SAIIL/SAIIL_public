@@ -1,7 +1,9 @@
 import argparse
 
 
-def parse_arguments(additional_setters=[],):
+def parse_arguments(
+    additional_setters=[],
+):
     """load and parse arguments
 
     Args:
