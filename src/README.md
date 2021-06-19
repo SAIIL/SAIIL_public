@@ -16,6 +16,11 @@ peroral endoscopic myotomy", DOI 10.1007/s00464-020-07833-9:
 ## Instructions for setting up SAGES protobuf SDK:
 
 ### Clone the repository
+
+```
+cd ~
+git clone git@github-personal:SAIIL/SAIIL_public.git
+```
 ### Install miniconda environment for the SDK
 * Install cuda as needed - we assume cuda 10.0, Ubuntu 18.04.
 * Set environment variable for repository location: We assume
