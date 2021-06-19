@@ -36,7 +36,7 @@ protoc --python_out=./ ./data_interface/sages.proto
 
 ### Convert cholec80 to protobuf
 * Download Cholec80 from the [Cholec80 website](http://camma.u-strasbg.fr/datasets) at Uni. of Strasbourg.
-* Convert the Cholec80 data using the following command:
+* Convert the Cholec80 data using the following command (a tutorial video can be found in: https://youtu.be/qUP0iazi4l4):
 ```
 python ${SAIIL_PUBLIC}/src/data_interface/cholec_convert.py  ${SAIIL_PUBLIC}/data/annotations/cholec80_protobuf/ --phase-folder  ${SAIIL_PUBLIC}/data/cholec80/phase_annotations -v --tool-folder ${SAIIL_PUBLIC}/data/cholec80/tool_annotations
 ```
