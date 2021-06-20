@@ -15,7 +15,7 @@ from phase_net.temporal_model_trainer import TemporalTrainer
 
 if __name__ == "__main__":
     """
-    A training example for phase segementation network.
+    A training example for phase segmentation network.
     """
     args = parse_arguments()
     simulate_data = False
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         num_workers=args.num_dataloader_workers,
         sampler=None,
         verbose=False,
-        annotation_filename=args.annotation_filename,
+        annotation_folder=args.annotation_filename,
         temporal_len=args.temporal_length,
         train_ratio=args.training_ratio,
         skip_nan=True,
