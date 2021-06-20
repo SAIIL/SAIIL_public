@@ -74,6 +74,7 @@ class SurgicalDataset(Dataset):
         self.create_phase_trajectories()
         # create weights for imbalanced data classes
         self.class_weights = torch.tensor([1/x if x!=0 else 0 for x in self.class_count])
+        self.skip_nan = params.get('skip_nan', True)
 
     def __len__(self):
         return len(self.input_img_list)
@@ -199,8 +200,9 @@ class SurgicalDataset(Dataset):
         sample_validity_list = torch.Tensor(sample_validity_list)
 
         #if all nan, return empty sample
-        if all(valid_sample == False for valid_sample in sample_validity_list):
-            return None
+        if self.skip_nan:
+            if all(valid_sample == False for valid_sample in sample_validity_list):
+                return None
 
         sample = {'idx':time_idx,
                   'sequence_length':sample_sequence_length,
@@ -267,7 +269,7 @@ class SurgicalDataset(Dataset):
                 self.segment_weights_list.append(weights_segment)
 
                 # convert list to Tensor
-                input_phase_trajectory_tmp = torch.Tensor(input_phase_trajectory_tmp).unsqueeze(0).unsqueeze(2)
+                input_phase_trajectory_tmp = torch.Tensor(input_phase_trajectory_tmp).unsqueeze(0).unsqueeze(2).type(torch.int)
                 from data_interface.base_utils import create_onehot_nan
                 input_phase_trajectory_tmp = create_onehot_nan(input_phase_trajectory_tmp, self.num_classes)
                 input_phase_trajectory_tmp = input_phase_trajectory_tmp.squeeze(0)
