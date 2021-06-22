@@ -270,6 +270,7 @@ class SurgicalDataset(Dataset):
 
                 # convert list to Tensor
                 input_phase_trajectory_tmp = torch.Tensor(input_phase_trajectory_tmp).unsqueeze(0).unsqueeze(2).type(torch.int)
+                #TODO: move to a different folder
                 from data_interface.base_utils import create_onehot_nan
                 input_phase_trajectory_tmp = create_onehot_nan(input_phase_trajectory_tmp, self.num_classes)
                 input_phase_trajectory_tmp = input_phase_trajectory_tmp.squeeze(0)
