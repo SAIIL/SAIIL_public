@@ -3,8 +3,9 @@ from collections import OrderedDict
 
 import torch
 import torchvision
-from phase_net.temporal_model_interface import TemporalModelItfc
 from torch import nn
+
+from phase_net.temporal_model_interface import TemporalModelItfc
 
 
 def create_fc_net(sizes):
@@ -67,7 +68,8 @@ class VisualModel(torch.nn.Module):
         phases_output = self.phases_head(output)
         return phases_output
 
-def create_simple_visual_network(num_classes, int_dim = [200,100]):
+
+def create_simple_visual_network(num_classes, int_dim=[200, 100]):
     """Create a visual network for phase classification.
 
     Args:

@@ -15,7 +15,7 @@ from phase_net.temporal_model_trainer import TemporalTrainer
 
 if __name__ == "__main__":
     """
-    A training example for phase segementation network.
+    A training example for phase segmentation network.
     """
     args = parse_arguments()
     simulate_data = False
@@ -29,6 +29,8 @@ if __name__ == "__main__":
     device = torch.device(str_cuda_device if (torch.cuda.is_available() and not args.disable_cuda) else "cpu")
     print("device = cuda:" + str(device))
 
+    os.makedirs('./visual_weights', exist_ok=True)
+    os.makedirs('./temporal_weights', exist_ok=True)
     save_step = 10
 
     params = vars(args)
@@ -44,7 +46,7 @@ if __name__ == "__main__":
         num_workers=args.num_dataloader_workers,
         sampler=None,
         verbose=False,
-        annotation_filename=args.annotation_filename,
+        annotation_folder=args.annotation_filename,
         temporal_len=args.temporal_length,
         train_ratio=args.training_ratio,
         skip_nan=True,

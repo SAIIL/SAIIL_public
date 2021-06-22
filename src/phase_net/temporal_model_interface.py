@@ -1,11 +1,10 @@
 from abc import abstractmethod
+
 from torch import nn
 
 
 class TemporalModelPublicItfc(nn.Module):
-    """ Interface for a temporal model (abstract class)
-
-    """
+    """Interface for a temporal model (abstract class)"""
 
     def __init__(self):
         super().__init__()
@@ -34,9 +33,7 @@ class TemporalModelPublicItfc(nn.Module):
 
 
 class TemporalModelItfc(TemporalModelPublicItfc):
-    """ Interface for a temporal model (abstract class)
-
-    """
+    """Interface for a temporal model (abstract class)"""
 
     def __init__(self):
         super().__init__()
