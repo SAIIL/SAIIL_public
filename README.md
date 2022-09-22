@@ -75,6 +75,7 @@ The main training script is under [src/phase_net/train_baseline.py](src/phase_ne
 Once the training is started, the associated training/validation statistics (including tensorboard) will be in your './lightning_logs'
 
 ### Please cite our paper if you use our code repo: 
+'''
 @inproceedings{ban2021aggregating,
   title={Aggregating long-term context for learning laparoscopic and robot-assisted surgical workflows},
   author={Ban, Yutong and Rosman, Guy and Ward, Thomas and Hashimoto, Daniel and Kondo, Taisei and Iwaki, Hidekazu and Meireles, Ozanan and Rus, Daniela},
@@ -83,5 +84,6 @@ Once the training is started, the associated training/validation statistics (inc
   year={2021},
   organization={IEEE}
 }
+'''
 
 
