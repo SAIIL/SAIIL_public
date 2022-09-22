@@ -57,7 +57,7 @@ protoc --python_out=./ ./data_interface/sages.proto
 ```
 python ${SAIIL_PUBLIC}/src/data_interface/cholec_convert.py  ${SAIIL_PUBLIC}/data/annotations/cholec80_protobuf/ --phase-folder  ${SAIIL_PUBLIC}/data/cholec80/phase_annotations -v --tool-folder ${SAIIL_PUBLIC}/data/cholec80/tool_annotations
 ```
-* Split the protobuf annotation file in train and test subsets (train: video01 - video40, test: video41 - 80). Or you can found the split annotations in [link](shorturl.at/BLOW7)
+* Split the protobuf annotation file in train and test subsets (train: video01 - video40, test: video41 - 80). Or you can found the split annotations in the [link](https://shorturl.at/BLOW7).
 ### Train an example phase classification network
 Run:
 ```
