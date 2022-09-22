@@ -53,11 +53,11 @@ protoc --python_out=./ ./data_interface/sages.proto
 ```
 python ${SAIIL_PUBLIC}/src/data_interface/cholec_convert.py  ${SAIIL_PUBLIC}/data/annotations/cholec80_protobuf/ --phase-folder  ${SAIIL_PUBLIC}/data/cholec80/phase_annotations -v --tool-folder ${SAIIL_PUBLIC}/data/cholec80/tool_annotations
 ```
-
+* Split the protobuf annotation file in train and test subsets (train: video01 - video40, test: video41 - 80). Or you can found the split annotations in shorturl.at/BLOW7
 ### Train an example phase classification network
 Run:
 ```
-${SAIIL_PUBLIC}/src/scripts/run_script_temporal_model.sh
+sh ./phase_net/train_model.sh
 ```
 (Verify that the folder names match your repository clone, and that you have compiled the protobuf, and downloaded/converted cholec80 data to protobuf)
 
@@ -66,4 +66,6 @@ The code includes a phase classification network with:
 * LSTM temporal model.
 * Pytorch dataset/loader based on the protobufs defined in the SAGES 20' video/data annotation workshop in Houston.
 
-The main training script is under [src/scripts/train_temporal_model.py](scripts/train_temporal_model.py).
+The main training script is under [src/phase_net/train_baseline.py](phase_net/train_baseline.py).
+
+Once the training is started, the associated training/validation statistics (including tensorboard) will be in your './lightning_logs'
