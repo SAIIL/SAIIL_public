@@ -66,6 +66,6 @@ The code includes a phase classification network with:
 * LSTM temporal model.
 * Pytorch dataset/loader based on the protobufs defined in the SAGES 20' video/data annotation workshop in Houston.
 
-The main training script is under [src/phase_net/train_baseline.py](phase_net/train_baseline.py).
+The main training script is under [src/phase_net/train_baseline.py](src/phase_net/train_baseline.py).
 
 Once the training is started, the associated training/validation statistics (including tensorboard) will be in your './lightning_logs'
