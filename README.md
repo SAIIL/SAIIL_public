@@ -21,7 +21,7 @@ peroral endoscopic myotomy", DOI 10.1007/s00464-020-07833-9:
 * Segment annotation (anvil) files.
 * Supporting statistics code.
  
-## Instructions for setting up SAGES protobuf SDK:
+# Instructions for setting up SAGES Phase Recognition SDK:
 
 ### Clone the repository
 
