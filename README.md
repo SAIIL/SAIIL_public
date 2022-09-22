@@ -40,10 +40,14 @@ export SAIIL_PUBLIC=~/SAIIL_public
 ```
 conda env create -f ${SAIIL_PUBLIC}/src/env.saiil.yml -n saiil
 ```
+### Install the package
+```
+cd ${SAIIL_PUBLIC}/src
+pip -e install ./
+```
 
 ### Create protobuf wrappers
 ```
-cd ${SAIIL_PUBLIC}/src
 protoc --python_out=./ ./data_interface/sages.proto
 ```
 
@@ -69,3 +73,15 @@ The code includes a phase classification network with:
 The main training script is under [src/phase_net/train_baseline.py](src/phase_net/train_baseline.py).
 
 Once the training is started, the associated training/validation statistics (including tensorboard) will be in your './lightning_logs'
+
+### Please cite our paper if you use our code repo: 
+@inproceedings{ban2021aggregating,
+  title={Aggregating long-term context for learning laparoscopic and robot-assisted surgical workflows},
+  author={Ban, Yutong and Rosman, Guy and Ward, Thomas and Hashimoto, Daniel and Kondo, Taisei and Iwaki, Hidekazu and Meireles, Ozanan and Rus, Daniela},
+  booktitle={2021 IEEE International Conference on Robotics and Automation (ICRA)},
+  pages={14531--14538},
+  year={2021},
+  organization={IEEE}
+}
+
+
