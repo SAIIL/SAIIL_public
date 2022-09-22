@@ -180,7 +180,7 @@ def additional_arg_setter(parser):
 
 if __name__ == "__main__":
     # A pytorn script for model training and validation for phase recongition. 
-    # a script example is in train_baseline.sh
+    # a script example is in train_model.sh
     ### python train_baseline.py --track_name phase --data_dir DATA_PATH/videos/
     # --annotation_filename DATA_PATH/annotations/ --temporal_length 8 --sampling_rate 1 --cache_dir ./cache --num_dataloader_workers 8 --num_epochs 20
 
