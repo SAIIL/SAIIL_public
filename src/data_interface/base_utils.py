@@ -33,6 +33,13 @@ class MissingVideoDirError(BaseException):
         self.directory = dir
 
 
+def read_phase_mapping(filename):
+    json_map = {}
+    with open(filename,'r') as fp:
+        json_map=json.load(fp)
+    return json_map
+
+
 def create_onehot_nan(path, num_classes):
     batch_size = path.shape[0]
     time_size = path.shape[1]
