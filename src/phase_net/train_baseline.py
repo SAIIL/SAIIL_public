@@ -230,7 +230,7 @@ if __name__ == "__main__":
 
     model = TemporalTrainer(class_names=train.class_names, log_dir = log_dir)
 
-    trainer = pl.Trainer(gpus=args.gpu, accelerator='ddp', check_val_every_n_epoch=1, max_epochs=args.num_epochs, logger=tb_logger)
+    trainer = pl.Trainer(gpus=args.gpu, accelerator='cuda', check_val_every_n_epoch=1, max_epochs=args.num_epochs, logger=tb_logger)
     # trainer = pl.Trainer(gpus=1, check_val_every_n_epoch=1, max_epochs=args.num_epochs, logger=tb_logger)
 
     if params['load_checkpoint']:
