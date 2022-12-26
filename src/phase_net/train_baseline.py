@@ -21,7 +21,7 @@ from misc.base_params import parse_arguments
 
 class TemporalTrainer(pl.LightningModule):
 
-    def __init__(self, class_names = [], log_dir = './'):
+    def __init__(self, class_names = [], log_dir = './', params = {}):
         super().__init__()
         self.model = CNN_LSTM(n_class=len(class_names))
         self.class_names = class_names
@@ -29,6 +29,8 @@ class TemporalTrainer(pl.LightningModule):
         # create stat csv file to save all the intermediate stats
         self.stat_file = open(os.path.join(log_dir, 'train_stats.csv'), 'w')
         self.stat_writer = csv.writer(self.stat_file)
+        self.logger_type = params.get("logger_type", None)
+        self.params = params
 
 
     def on_train_start(self) -> None:
@@ -73,6 +75,11 @@ class TemporalTrainer(pl.LightningModule):
         accuracy[np.isnan(accuracy)] = 0.0
         print("confusion matrix:")
         print(cm.astype(int))
+        if self.logger_type == "wandb":
+            import wandb
+            table = wandb.Table(columns="input")
+            table.add_data(str(cm))
+            self.logger.log("cm", table)
         print("Recall:")
         accuracy = cm.diagonal() / cm.sum(axis=-1)
         accuracy[np.isnan(accuracy)] = 0.0
