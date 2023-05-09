@@ -21,7 +21,7 @@ peroral endoscopic myotomy", DOI 10.1007/s00464-020-07833-9:
 * Segment annotation (anvil) files.
 * Supporting statistics code.
  
-## Instructions for setting up SAGES protobuf SDK:
+# Instructions for setting up SAGES Phase Recognition SDK:
 
 ### Clone the repository
 
@@ -40,10 +40,14 @@ export SAIIL_PUBLIC=~/SAIIL_public
 ```
 conda env create -f ${SAIIL_PUBLIC}/src/env.saiil.yml -n saiil
 ```
+### Install the package
+```
+cd ${SAIIL_PUBLIC}/src
+pip -e install ./
+```
 
 ### Create protobuf wrappers
 ```
-cd ${SAIIL_PUBLIC}/src
 protoc --python_out=./ ./data_interface/sages.proto
 ```
 
@@ -53,11 +57,11 @@ protoc --python_out=./ ./data_interface/sages.proto
 ```
 python ${SAIIL_PUBLIC}/src/data_interface/cholec_convert.py  ${SAIIL_PUBLIC}/data/annotations/cholec80_protobuf/ --phase-folder  ${SAIIL_PUBLIC}/data/cholec80/phase_annotations -v --tool-folder ${SAIIL_PUBLIC}/data/cholec80/tool_annotations
 ```
-
+* Split the protobuf annotation file in train and test subsets (train: video01 - video40, test: video41 - 80). Or you can found the split annotations in the [link](https://shorturl.at/BLOW7).
 ### Train an example phase classification network
 Run:
 ```
-${SAIIL_PUBLIC}/src/scripts/run_script_temporal_model.sh
+sh ./phase_net/train_model.sh
 ```
 (Verify that the folder names match your repository clone, and that you have compiled the protobuf, and downloaded/converted cholec80 data to protobuf)
 
@@ -66,4 +70,21 @@ The code includes a phase classification network with:
 * LSTM temporal model.
 * Pytorch dataset/loader based on the protobufs defined in the SAGES 20' video/data annotation workshop in Houston.
 
-The main training script is under [src/scripts/train_temporal_model.py](scripts/train_temporal_model.py).
+The main training script is under [src/phase_net/train_baseline.py](src/phase_net/train_baseline.py).
+
+Once the training is started, the associated training/validation statistics (including tensorboard) will be in your './lightning_logs'
+
+### Please cite our paper if you use our code repo: 
+```
+@inproceedings{ban2021aggregating,
+  title={Aggregating long-term context for learning laparoscopic and robot-assisted surgical workflows},
+  author={Ban, Yutong and Rosman, Guy and Ward, Thomas and Hashimoto, Daniel and Kondo, Taisei and Iwaki, Hidekazu and Meireles, Ozanan and Rus, Daniela},
+  booktitle={2021 IEEE International Conference on Robotics and Automation (ICRA)},
+  pages={14531--14538},
+  year={2021},
+  organization={IEEE}
+}
+```
+
+
+

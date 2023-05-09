@@ -33,11 +33,9 @@ def load_protobuf_dir(
     """
     steps = {}
     annotations = {}
-
     files_list = sorted(glob.glob(os.path.join(annotation_dir, "*.pb")))
     if phase_translation_file is not None:
         from data_interface.base_utils import read_phase_mapping
-
         phase_name_map = read_phase_mapping(phase_translation_file)
     else:
         phase_name_map = {}
@@ -57,13 +55,17 @@ def load_protobuf_dir(
             if trk["track_name"] == "point" or trk["track_name"] == "other steps":
                 continue
             track_name = trk["track_name"]
+
             if allowed_track_names is not None and track_name not in allowed_track_names:
                 continue
 
             props = trk["entity"].event
             name = props.type
-            if name in phase_name_map.keys():
-                name = phase_name_map[name]
+
+            if (track_name in phase_name_map and name in phase_name_map[track_name]):
+                if phase_name_map[track_name][name].lower() == 'error':
+                    raise Exception('Found phase ' + name + ' in annotation filename ' + str(filename))
+                name = phase_name_map[track_name][name]
 
             start = float(str(props.temporal_interval.start.seconds) + "." + str(props.temporal_interval.start.nanos))
             end = float(str(props.temporal_interval.end.seconds) + "." + str(props.temporal_interval.end.nanos))
@@ -81,6 +83,7 @@ def load_protobuf_dir(
             if track_name not in steps:
                 steps[track_name] = set()
             steps[track_name].add(name)
+
             annotations[os.path.join(prefix, video_file)].add(
                 name,
                 {
@@ -119,62 +122,34 @@ def load_protobuf_file(filename):
         return all_entities
 
 
-def process_data_directory_surgery(
-    data_dir,
-    fractions=[],
-    width=224,
-    height=224,
-    max_video=80,
-    batch_size=32,
-    num_workers=4,
-    train_transform=None,
-    shuffle=True,
-    segment_ratio=1.0,
-    patient_factor_list=[],
-    past_length=10,
-    train_ratio=0.75,
-    default_fps=25,
-    sampler=None,
-    verbose=True,
-    annotation_folder=None,
-    temporal_len=None,
-    sampling_rate=1,
-    avoid_annotations=False,
-    seed=1234,
-    skip_nan=True,
-    phase_translation_file=None,
-    cache_dir="",
-    params={},
-):
-    """
-    Read a data directory, and can handle multiple annotators.
-    :param data_dir: the root dir for the data
-    :param fractions:
-    :param width:
-    :param height:
-    :param max_video:
-    :param batch_size:
-    :param num_workers:
-    :param train_transform:
-    :param shuffle:
-    :param segment_ratio:
-    :param train_ratio:
-    :param default_fps:
-    :param sampler:
-    :param verbose:
-    :param annotation_folder: - the folder w/ annotations files.
-    :param temporal_len:
-    :param avoid_annotations:
-    :param seed:
-    :param sampling_rate: the sampling rate of creating the dataset from videos, unit: fps
-    :param avoid_annotation #TODO - complete this one
-    :param skip_nan if add nan label into the dataset
-    :param params - a dictionary of additional parameters:
-    'track_name' - the track name to generate datasets for.
-    :param params: a dictionary for new parameters
-    #TODO: move arguments into params dictionary
-    :return:
-    """
+def collect_surgery_info(
+        data_dir,
+        fractions=[],
+        width=224,
+        height=224,
+        max_video=80,
+        batch_size=32,
+        num_workers=4,
+        train_transform=None,
+        shuffle=True,
+        segment_ratio=1.0,
+        patient_factor_list=[],
+        past_length=10,
+        train_ratio=0.75,
+        default_fps=25,
+        sampler=None,
+        verbose=True,
+        annotation_folder=None,
+        temporal_len=None,
+        sampling_rate=1,
+        avoid_annotations=False,
+        seed=1234,
+        skip_nan=True,
+        phase_translation_file=None,
+        cache_dir="",
+        params={},
+    ):
+
     print("sampling rate:  " + str(sampling_rate))
     train_images = []
     train_labels = []
@@ -185,11 +160,12 @@ def process_data_directory_surgery(
     track_name = params.get("track_name", None)
     # make sure there's a trailing separator for consistency
     data_dir = os.path.join(data_dir, "")
+
     class_names, annotations = load_protobuf_dir(
         annotation_dir=annotation_folder,
         verbose=verbose,
         phase_translation_file=phase_translation_file,
-        allowed_track_names=[track_name],
+        allowed_track_names=track_name,
     )
 
     if track_name is None:
@@ -312,13 +288,9 @@ def process_data_directory_surgery(
                 if training_data:
                     train_images.append(img)
                     train_labels.append(label)
-                    for patient_factor in patient_factor_list:
-                        train_patient_factor[patient_factor].append(patient_factor_sample[patient_factor])
                 else:
                     test_images.append(img)
                     test_labels.append(label)
-                    for patient_factor in patient_factor_list:
-                        test_patient_factor[patient_factor].append(patient_factor_sample[patient_factor])
             except:
                 pass
 
@@ -335,6 +307,115 @@ def process_data_directory_surgery(
 
     if any(np.isnan(train_labels)):
         print("there is nan in labels")
+
+    train_info = dict()
+    train_info['images'] = train_images
+    train_info['labels'] = train_labels
+    train_info['video_idx'] = train_video_idx 
+    train_info['class_names'] = class_names
+    train_info['fps'] = fps
+
+    test_info = dict()
+    test_info['images'] = test_images
+    test_info['labels'] = test_labels
+    test_info['video_idx'] = test_video_idx 
+
+    return train_info, test_info
+
+def process_data_directory_surgery(
+    data_dir,
+    fractions=[],
+    width=224,
+    height=224,
+    max_video=80,
+    batch_size=32,
+    num_workers=4,
+    train_transform=None,
+    shuffle=True,
+    segment_ratio=1.0,
+    patient_factor_list=[],
+    past_length=10,
+    train_ratio=0.75,
+    default_fps=25,
+    sampler=None,
+    verbose=True,
+    annotation_folder=None,
+    temporal_len=None,
+    sampling_rate=1,
+    avoid_annotations=False,
+    seed=1234,
+    skip_nan=True,
+    phase_translation_file=None,
+    cache_dir="",
+    params={},
+):
+    """
+    Read a data directory, and can handle multiple annotators.
+    :param data_dir: the root dir for the data
+    :param fractions:
+    :param width:
+    :param height:
+    :param max_video:
+    :param batch_size:
+    :param num_workers:
+    :param train_transform:
+    :param shuffle:
+    :param segment_ratio:
+    :param train_ratio:
+    :param default_fps:
+    :param sampler:
+    :param verbose:
+    :param annotation_folder: - the folder w/ annotations files.
+    :param temporal_len:
+    :param avoid_annotations:
+    :param seed:
+    :param sampling_rate: the sampling rate of creating the dataset from videos, unit: fps
+    :param avoid_annotation #TODO - complete this one
+    :param skip_nan if add nan label into the dataset
+    :param params - a dictionary of additional parameters:
+    'track_name' - the track name to generate datasets for.
+    :param params: a dictionary for new parameters
+    #TODO: move arguments into params dictionary
+    :return:
+    """
+
+    
+    train_info, test_info= collect_surgery_info(data_dir = data_dir,
+                                        fractions=fractions,
+                                        width=width,
+                                        height=height,
+                                        max_video=max_video,
+                                        batch_size=batch_size,
+                                        num_workers=num_workers,
+                                        train_transform=train_transform,
+                                        shuffle=shuffle,
+                                        segment_ratio=segment_ratio,
+                                        patient_factor_list=patient_factor_list,
+                                        past_length=past_length,
+                                        train_ratio=train_ratio,
+                                        default_fps=default_fps,
+                                        sampler=sampler,
+                                        verbose=verbose,
+                                        annotation_folder=annotation_folder,
+                                        temporal_len=temporal_len,
+                                        sampling_rate=sampling_rate,
+                                        avoid_annotations=avoid_annotations,
+                                        seed=seed,
+                                        skip_nan=skip_nan,
+                                        phase_translation_file=phase_translation_file,
+                                        cache_dir=cache_dir,
+                                        params=params)
+    
+    train_images = train_info['images']
+    train_labels = train_info['labels']
+    train_video_idx = train_info['video_idx']
+    class_names = train_info['class_names']
+    fps = train_info['fps']
+
+    test_images = test_info['images']
+    test_labels = test_info['labels']
+    test_video_idx = test_info['video_idx']
+
 
     train_dataset = SurgicalDataset(
         train_images,

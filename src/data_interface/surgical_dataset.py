@@ -144,7 +144,6 @@ class SurgicalDataset(Dataset):
                         print("error in " + cache_pathname + ", image = " + str(image))
 
                 if image is None:
-                    # print(video_name)
                     if self.video_data_type == "video":
                         try:
                             if not opened_video:
@@ -188,12 +187,9 @@ class SurgicalDataset(Dataset):
                             import IPython
 
                             IPython.embed(header="handle bad type")
-                        scale_tmp = np.random.uniform(0.7, 1.3)
-                        transform_apply = transforms.Compose(
-                            [self.transform, transforms.CenterCrop(scale_tmp * self.width)]
-                        )
+
+                        transform_apply = self.transform
                         img = transform_apply(pil_im)
-                        img = img.resize((self.height, self.width))
                         img = np.float32(img).transpose((2, 0, 1))
                     else:
                         try:
@@ -266,7 +262,7 @@ class SurgicalDataset(Dataset):
                 # no nan labels in the dataset
                 if any(np.isnan(sample) for sample in input_phase_trajectory_tmp):
                     continue
-
+                
                 # count phases:
                 count_tmp = np.zeros(self.num_classes)
                 for idx_tmp in range(len(input_phase_trajectory_tmp)):
