@@ -14,21 +14,23 @@ from data_interface.protobuf_dataset import process_data_directory_surgery
 from misc.base_params import parse_arguments
 
 
-# A pytorn script for model training and validation for phase recongition. 
+# A Python script for model training and validation for phase recognition.
 # A script running example can be found in train_baseline.sh
-# MIT liscence
+# MIT license
 # Author: Yutong Ban, Guy Rosman 
 
 class TemporalTrainer(pl.LightningModule):
 
-    def __init__(self, class_names = [], log_dir = './'):
+    def __init__(self, class_names = [], log_dir = './', params = {}):
         super().__init__()
         self.model = CNN_LSTM(n_class=len(class_names))
         self.class_names = class_names
         self.n_class = len(self.class_names)
-        # create stat csv file to save all the intermidiate stats
+        # create stat csv file to save all the intermediate stats
         self.stat_file = open(os.path.join(log_dir, 'train_stats.csv'), 'w')
         self.stat_writer = csv.writer(self.stat_file)
+        self.logger_type = params.get("logger_type", None)
+        self.params = params
 
 
     def on_train_start(self) -> None:
@@ -51,7 +53,7 @@ class TemporalTrainer(pl.LightningModule):
         return loss
 
     def on_validation_start(self) -> None:
-        # define cm
+        # define confusion matrix variable
         self.cm = torch.zeros(self.n_class, self.n_class)
 
     def validation_step(self, batch, batch_idx):
@@ -73,6 +75,10 @@ class TemporalTrainer(pl.LightningModule):
         accuracy[np.isnan(accuracy)] = 0.0
         print("confusion matrix:")
         print(cm.astype(int))
+        
+        if self.logger_type == "wandb":
+            import wandb
+            self.logger.log_text(key="cm",columns=self.class_names,data=self.cm.tolist())
         print("Recall:")
         accuracy = cm.diagonal() / cm.sum(axis=-1)
         accuracy[np.isnan(accuracy)] = 0.0
@@ -138,6 +144,10 @@ class TemporalTrainer(pl.LightningModule):
         cm = self.cm.detach().cpu().numpy()
         print("confusion matrix:")
         print(cm.astype(int))
+        if self.logger_type == "wandb":
+            import wandb
+            self.logger.log_text(key="cm",columns=self.class_names,data=self.cm.tolist())
+            
         print("Recall:")
         stats = [self.current_epoch, "Recall"]
         accuracy = cm.diagonal() / cm.sum(axis=-1)
@@ -176,6 +186,7 @@ def additional_arg_setter(parser):
     parser.add_argument('--checkpoint_path', action='store', type=str, default=None, help="the path to load the checkpoints")
     parser.add_argument('--inference', default=False, action='store_true', help="run model")
     parser.add_argument('--load_inference_result', default=False, action='store_true', help="load inference results")
+    parser.add_argument('--logger_type', action='store', type=str, choices = ['tensorboard','wandb'], default='tensorboard', help="")
     return parser
 
 if __name__ == "__main__":
@@ -221,16 +232,25 @@ if __name__ == "__main__":
         elif split == 'test':
             val = datasets["val"]
 
-    dataloader_train = DataLoader(train, batch_size=args.batch_size, drop_last=True, shuffle=True,
-                                  num_workers=args.num_dataloader_workers)
+    fraction=1.0 # can use to reduce the number of samples in the datasets.
+    train_idx = np.random.choice(a=len(train),size=int(len(train)*fraction))
+    val_idx = np.random.choice(a=len(val),size=int(len(val)*fraction))
+    train_sampler = torch.utils.data.SubsetRandomSampler(train_idx)
+    val_sampler = torch.utils.data.SubsetRandomSampler(val_idx)
+    dataloader_train = DataLoader(train, batch_size=args.batch_size, drop_last=True, 
+                                  num_workers=args.num_dataloader_workers, sampler=train_sampler)
     dataloader_test = DataLoader(val, batch_size=args.batch_size, drop_last=True,
-                                 num_workers=args.num_dataloader_workers)
+                                 num_workers=args.num_dataloader_workers, sampler=val_sampler)
 
-    tb_logger = pl_loggers.TensorBoardLogger(save_dir=log_dir, name='lightning')
+    if params['logger_type'] == 'tensorboard':
+        logger = pl_loggers.TensorBoardLogger(save_dir=log_dir, name='lightning')
+    else:
+        logger = pl_loggers.wandb.WandbLogger(project="phases")
 
-    model = TemporalTrainer(class_names=train.class_names, log_dir = log_dir)
 
-    trainer = pl.Trainer(gpus=args.gpu, accelerator='cuda', check_val_every_n_epoch=1, max_epochs=args.num_epochs, logger=tb_logger)
+    model = TemporalTrainer(class_names=train.class_names, log_dir = log_dir, params = params)
+
+    trainer = pl.Trainer(gpus=args.gpu, accelerator='cuda', check_val_every_n_epoch=1, max_epochs=args.num_epochs, logger=logger)
     # trainer = pl.Trainer(gpus=1, check_val_every_n_epoch=1, max_epochs=args.num_epochs, logger=tb_logger)
 
     if params['load_checkpoint']:
