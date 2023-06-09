@@ -75,11 +75,10 @@ class TemporalTrainer(pl.LightningModule):
         accuracy[np.isnan(accuracy)] = 0.0
         print("confusion matrix:")
         print(cm.astype(int))
+        
         if self.logger_type == "wandb":
             import wandb
-            table = wandb.Table(columns="input")
-            table.add_data(str(cm))
-            self.logger.log("cm", table)
+            self.logger.log_text(key="cm",columns=self.class_names,data=self.cm.tolist())
         print("Recall:")
         accuracy = cm.diagonal() / cm.sum(axis=-1)
         accuracy[np.isnan(accuracy)] = 0.0
@@ -145,6 +144,10 @@ class TemporalTrainer(pl.LightningModule):
         cm = self.cm.detach().cpu().numpy()
         print("confusion matrix:")
         print(cm.astype(int))
+        if self.logger_type == "wandb":
+            import wandb
+            self.logger.log_text(key="cm",columns=self.class_names,data=self.cm.tolist())
+            
         print("Recall:")
         stats = [self.current_epoch, "Recall"]
         accuracy = cm.diagonal() / cm.sum(axis=-1)
@@ -229,10 +232,15 @@ if __name__ == "__main__":
         elif split == 'test':
             val = datasets["val"]
 
-    dataloader_train = DataLoader(train, batch_size=args.batch_size, drop_last=True, shuffle=True,
-                                  num_workers=args.num_dataloader_workers)
+    fraction=1.0 # can use to reduce the number of samples in the datasets.
+    train_idx = np.random.choice(a=len(train),size=int(len(train)*fraction))
+    val_idx = np.random.choice(a=len(val),size=int(len(val)*fraction))
+    train_sampler = torch.utils.data.SubsetRandomSampler(train_idx)
+    val_sampler = torch.utils.data.SubsetRandomSampler(val_idx)
+    dataloader_train = DataLoader(train, batch_size=args.batch_size, drop_last=True, 
+                                  num_workers=args.num_dataloader_workers, sampler=train_sampler)
     dataloader_test = DataLoader(val, batch_size=args.batch_size, drop_last=True,
-                                 num_workers=args.num_dataloader_workers)
+                                 num_workers=args.num_dataloader_workers, sampler=val_sampler)
 
     if params['logger_type'] == 'tensorboard':
         logger = pl_loggers.TensorBoardLogger(save_dir=log_dir, name='lightning')
@@ -240,7 +248,7 @@ if __name__ == "__main__":
         logger = pl_loggers.wandb.WandbLogger(project="phases")
 
 
-    model = TemporalTrainer(class_names=train.class_names, log_dir = log_dir)
+    model = TemporalTrainer(class_names=train.class_names, log_dir = log_dir, params = params)
 
     trainer = pl.Trainer(gpus=args.gpu, accelerator='cuda', check_val_every_n_epoch=1, max_epochs=args.num_epochs, logger=logger)
     # trainer = pl.Trainer(gpus=1, check_val_every_n_epoch=1, max_epochs=args.num_epochs, logger=tb_logger)
